@@ -1,13 +1,9 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r,warning=F,message=F,results="hold"}
+
+```r
 #hide package load messages, display chunk results at the end
 library("knitr")
 opts_chunk$set(warning=F,message=F,results="hold",cache=T)
@@ -26,10 +22,24 @@ actdata$DateTime<-strptime(paste(actdata$date,times,sep=" "),format="%Y-%m-%d %H
 str(actdata)
 ```
 
+```
+## 'data.frame':	17568 obs. of  4 variables:
+##  $ steps   : int  NA NA NA NA NA NA NA NA NA NA ...
+##  $ date    : Factor w/ 61 levels "2012-10-01","2012-10-02",..: 1 1 1 1 1 1 1 1 1 1 ...
+##  $ interval: int  0 5 10 15 20 25 30 35 40 45 ...
+##  $ DateTime: POSIXlt, format: "2012-10-01 00:00:00" "2012-10-01 00:05:00" ...
+```
+
 Summary of steps:
 
-```{r}
+
+```r
 summary(actdata$steps)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+##    0.00    0.00    0.00   37.38   12.00  806.00    2304
 ```
 
 
@@ -38,7 +48,8 @@ summary(actdata$steps)
 
 We're going to ignore days during which we have no data (in particular, day 1)
 
-```{r}
+
+```r
 #add up steps per day
 actdata.nona<-na.omit(actdata)
 dates<-levels(actdata.nona$date)
@@ -57,9 +68,11 @@ actdata.sum.median<-median(actdata.sum$steps)
 hist(actdata.sum$steps,col="red",xlab="Steps per Day",ylab="Frequency",main="Histogram of Steps Taken per Day")
 ```
 
-The mean steps taken per day is `r round(actdata.sum.mean,2)`.
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png) 
 
-The median steps taken per day is `r as.character(actdata.sum.median)`.
+The mean steps taken per day is 9354.23.
+
+The median steps taken per day is 10395.
 
 
 
@@ -67,7 +80,8 @@ The median steps taken per day is `r as.character(actdata.sum.median)`.
 
 The goal of this section is to analyze the average steps taken by time of day
 
-```{r}
+
+```r
 #add up steps per time interval
 intervals<-as.integer(levels(as.factor(actdata.nona$interval)))
 stepsavg<-rep(0,length(intervals))
@@ -89,18 +103,22 @@ plot(actdata.avg$interval,actdata.avg$stepsavg,type="l",
      xlab="Interval",ylab="Average Daily Steps in the Interval",main="Time Series Plot of Average Steps Taken in 5-minute Intervals")
 ```
 
-The maximum average steps taken in a 5-minute interval was `r round(actdata.avg.maxsteps,2)`. This occurred in interval `r actdata.avg.maxint`, which corresponds to `r actdata.avg.maxint%/%100` hours and `r actdata.avg.maxint%%100` minutes.
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png) 
+
+The maximum average steps taken in a 5-minute interval was 179.13. This occurred in interval 835, which corresponds to 8 hours and 35 minutes.
 
 
 
 ## Imputing missing values
-```{r}
+
+```r
 countna<-length(actdata$steps)-length(actdata.nona$steps) #total NAs
 ```
 
-We have `r countna` intervals with no data (NA values). We're going to assume the expected number of steps in each interval doesn't change across days. This will allow us to augment the missing data with interval means computed from our previous data. This interval average will be slightly different than the previous calculation, since we'll be taking the mean of available data for each interval, not the mean across all days.
+We have 2304 intervals with no data (NA values). We're going to assume the expected number of steps in each interval doesn't change across days. This will allow us to augment the missing data with interval means computed from our previous data. This interval average will be slightly different than the previous calculation, since we'll be taking the mean of available data for each interval, not the mean across all days.
 
-```{r}
+
+```r
 #add up steps per time interval
 intervals<-as.integer(levels(as.factor(actdata$interval)))
 stepsavg<-rep(0,length(intervals))
@@ -137,16 +155,19 @@ actdata.aug.sum.median<-median(actdata.aug.sum$steps)
 hist(actdata.aug.sum$steps,col="red",xlab="Steps per Day",ylab="Frequency",main="Histogram of Steps Taken per Day")
 ```
 
-The augmented mean steps taken per day is `r as.character(round(actdata.aug.sum.mean,2))`, which is an increase of `r as.character(round(actdata.aug.sum.mean-actdata.sum.mean,2))` from our data without NAs.
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png) 
 
-The augmented median steps taken per day is `r as.character(round(actdata.aug.sum.median,2))`, which is an increase of `r as.character(round(actdata.aug.sum.median-actdata.sum.median,2))` from our data without NAs.
+The augmented mean steps taken per day is 10766.19, which is an increase of 1411.96 from our data without NAs.
+
+The augmented median steps taken per day is 10766.19, which is an increase of 371.19 from our data without NAs.
 
 It's surprising that the mean and median match exactly, but it's true.
 
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
-```{r, fig.height=6}
+
+```r
 #Categorize each day as weekday/weekend
 daytype<-weekdays(as.Date(actdata.aug$date))
 daytype[is.element(daytype,c("Monday","Tuesday","Wednesday","Thursday","Friday"))]<-"weekday"
@@ -183,8 +204,10 @@ plot(actdata.avg$interval,actdata.avg$stepsavg.weekday,type="l", xlab="Interval"
 title(main="Time Series of Avg Steps Taken in 5-min Intervals by Day Type",outer=T)
 ```
 
-The average steps taken per day on a weekend is `r as.character(round(actdata.avg.weekend,2))`.
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png) 
 
-The average steps taken per day on a weekday is `r as.character(round(actdata.avg.weekday,2))`.
+The average steps taken per day on a weekend is 12201.52.
+
+The average steps taken per day on a weekday is 10255.85.
 
 This person was quite a bit more active during the weekends.
